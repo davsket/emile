@@ -32,7 +32,7 @@
 	        window.cancelAnimationFrame = function(id) {clearTimeout(id)};
 	}());
 
-	function interpolate(source,target,pos){return (source+(target-source)*pos).toFixed(3); }
+	function interpolate(source,target,pos){return parseFloat(source+(target-source)*pos).toFixed(3); }
 	function s(str, p, c){ return str.substr(p,c||1); }
 	function color(source,target,pos){
 		var i = 2, j, c, tmp, v = [], r = [];
