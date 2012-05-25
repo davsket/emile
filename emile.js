@@ -83,11 +83,10 @@
 		var css, rules = {}, i = props.length, v;
 		parseEl.innerHTML = '<div style="'+style+'"></div>';
 		//here is where it fails
-		// css = parseEl.childNodes[0].style;
+		css = parseEl.childNodes[0].style;
 		//in transformations currentStyle gives a matrix, contrary to currentstyle
-		css = parseEl.currentStyle ? parseEl.currentStyle : getComputedStyle(parseEl, null);
+		// css = parseEl.currentStyle ? parseEl.currentStyle : getComputedStyle(parseEl, null);
 		while(i--) if(v = css[props[i]]) rules[props[i]] = parse(v);
-		// console.log(rules)
 		return rules;
 	}  
   
