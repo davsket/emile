@@ -1,12 +1,12 @@
 <script src="emile.js"></script>
 
 <div id="test1" style="position:absolute;left:0px;background:#f00;opacity:0">test</div>
-<div id="test2" style="border:0px solid #00ff00;position:absolute;left:0px;top:400px;background:#0f0">test</div>
+<div id="test2" style="border:0px solid #00ff00;position:absolute;left:0px;top:200px;background:#0f0;-webkit-transform:  rotate(1deg)">test</div>
 
 <script>
 var goodExit = false;
-
-  emile('test2', 'left:300px;padding:10px;border:50px solid #ff0000;-webkit-transform: rotate(200deg) scale(4)', {
+  console.log(test2.style.webkitTransform)
+  emile('test2', 'left:300px;padding:10px;top:250;border:50px solid #ff0000;-webkit-transform: rotate(200deg) skewY(20deg) translate(0,200px)', {
     duration: 500,
     after: function(){
       // emile('test1', 'background:#0f0;left:100px;padding-bottom:100px;opacity:1', { 

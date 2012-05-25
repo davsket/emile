@@ -31,7 +31,7 @@
 	        window.cancelAnimationFrame = function(id) {clearTimeout(id)};
 	}());
 
-	function interpolate(source,target,pos){ return (source+(target-source)*pos).toFixed(3); }
+	function interpolate(source,target,pos){ return parseFloat(source+(target-source)*pos).toFixed(3); }
 	function s(str, p, c){ return str.substr(p,c||1); }
 	function color(source,target,pos){
 		var i = 2, j, c, tmp, v = [], r = [];
@@ -43,23 +43,29 @@
 		return 'rgb('+r.join(',')+')';
 	}
 	function interpolateTransform(source,target,pos){
-		var sourceProps = source == 'none' ? [] : source.replace(/,\s?/,',').split(' '),
-			targetProps = target == 'none' ? sourceProps : target.replace(/,\s?/,',').split(' '), 
-			res = [], i = 0, targetObj = {}, sourceObj = {}, prop, interpolated, temparr;
-		for(;sourceProps.length;i++){
-			sourceObj[sourceProps[i].split(/[\-\d\.]+/).join('')] = sourceProps[i].split(/[\-\d\.]+/);
+		var sourceProps = source == 'none' ? [] : source.match(/\w+\([\-\w\.\,\s]+\)/g),
+			targetProps = target == 'none' ? sourceProps : target.match(/\w+\([\-\w\.\,\s]+\)/g), 
+			res = [], i = 0, j = 0, targetObj = {}, sourceObj = {}, prop, interpolated, temparr;
+		for(;i<sourceProps.length;i++){
+			sourceObj[sourceProps[i].split(/[\-\d\.\,]+/).join('')] = sourceProps[i];
 			//Target obj needs to have all properties
-			targetObj[sourceProps[i].split(/[\-\d\.]+/).join('')] = sourceProps[i].split(/[\-\d\.]+/); 
+			targetObj[sourceProps[i].split(/[\-\d\.\,]+/).join('')] = sourceProps[i]; 
 		} 
 		for(i=0;targetProps.length && targetProps[i];i++){
 			// console.log(targetProps[i], i);
-			targetObj[targetProps[i].split(/[\-\d\.]+/).join('')] = targetProps[i];	
+			targetObj[targetProps[i].split(/[\-\d\.\,]+/).join('')] = targetProps[i];	
 		} 
 		i = 0;
 		for(prop in targetObj){
-			interpolated = interpolate(sourceObj[prop]?sourceObj[prop].match(/[\-\d\.]+/)[0]:0, targetObj[prop].match(/[\-\d\.]+/)[0], pos);
+			var sourcevals = 0, targetvals = targetObj[prop].match(/[\-\d\.]+/g);
+			if(sourceObj[prop]){
+				sourcevals = sourceObj[prop].match(/[\-\d\.]+/)[0]
+			}
 			temparr = targetObj[prop].split(/[\-\d\.]+/);
-			temparr.splice(1,0,interpolated);
+			for(j=0;j<targetvals.length;j++){
+				interpolated = interpolate(sourcevals[j]||0,targetvals[j], pos)
+				temparr.splice(1+2*j,0,interpolated);
+			}
 			res[i] = temparr.join('');
 			i++;
 		}
@@ -70,14 +76,16 @@
 		var p = parseFloat(prop), q = prop.replace(/^[\-\d\.]+/,'');
 		if(!prop.match(/rotate|translate|scale|skewX|skewY/))
 			return isNaN(p) ? { v: q, f: color, u: ''} : { v: p, f: interpolate, u: q };
-		console.log(q)
 		return {v: q, f: interpolateTransform, u: ''}
 	}
   
 	function normalize(style){
 		var css, rules = {}, i = props.length, v;
 		parseEl.innerHTML = '<div style="'+style+'"></div>';
-		css = parseEl.childNodes[0].style;
+		//here is where it fails
+		// css = parseEl.childNodes[0].style;
+		//in transformations currentStyle gives a matrix, contrary to currentstyle
+		css = parseEl.currentStyle ? parseEl.currentStyle : getComputedStyle(parseEl, null);
 		while(i--) if(v = css[props[i]]) rules[props[i]] = parse(v);
 		// console.log(rules)
 		return rules;
@@ -89,11 +97,11 @@
 		var target = normalize(style), comp = el.currentStyle ? el.currentStyle : getComputedStyle(el, null),
 		  prop, current = {}, start = +new Date, dur = opts.duration||200, finish = start+dur, interval,
 		  easing = opts.easing || function(pos){ return (-Math.cos(pos*Math.PI)/2) + 0.5; };
-		for(prop in target) current[prop] = parse(comp[prop]);
+		for(prop in target){console.log(comp[prop], prop, el.style[prop]); current[prop] = parse(comp[prop]);}
 		interval = requestAnimationFrame(function animation(){
 		var time = new Date().getTime(), pos = time>finish ? 1 : (time-start)/dur;
 		for(prop in target){
-			// console.log(prop)
+			console.log(prop,current[prop])
 			el.style[prop] = target[prop].f(current[prop].v,target[prop].v,easing(pos)) + target[prop].u;
 		}
 		if(time>finish) { cancelAnimationFrame(interval); opts.after && opts.after(); after && setTimeout(after,1); }
