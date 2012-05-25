@@ -59,7 +59,7 @@
 		for(prop in targetObj){
 			var sourcevals = 0, targetvals = targetObj[prop].match(/[\-\d\.]+/g);
 			if(sourceObj[prop]){
-				sourcevals = sourceObj[prop].match(/[\-\d\.]+/)[0]
+				sourcevals = sourceObj[prop].match(/[\-\d\.]+/)
 			}
 			temparr = targetObj[prop].split(/[\-\d\.]+/);
 			for(j=0;j<targetvals.length;j++){
