@@ -31,7 +31,7 @@
 	        window.cancelAnimationFrame = function(id) {clearTimeout(id)};
 	}());
 
-	function interpolate(source,target,pos){ return parseFloat(source+(target-source)*pos).toFixed(3); }
+	function interpolate(source,target,pos){return (source+(target-source)*pos).toFixed(3); }
 	function s(str, p, c){ return str.substr(p,c||1); }
 	function color(source,target,pos){
 		var i = 2, j, c, tmp, v = [], r = [];
@@ -43,8 +43,8 @@
 		return 'rgb('+r.join(',')+')';
 	}
 	function interpolateTransform(source,target,pos){
-		var sourceProps = source == 'none' ? [] : source.match(/\w+\([\-\w\.\,\s]+\)/g),
-			targetProps = target == 'none' ? sourceProps : target.match(/\w+\([\-\w\.\,\s]+\)/g), 
+		var sourceProps = !source || source == 'none' ? [] : source.match(/\w+\([\-\w\.\,\s]+\)/g),
+			targetProps = !target || target == 'none' ? sourceProps : target.match(/\w+\([\-\w\.\,\s]+\)/g), 
 			res = [], i = 0, j = 0, targetObj = {}, sourceObj = {}, prop, interpolated, temparr;
 		for(;i<sourceProps.length;i++){
 			sourceObj[sourceProps[i].split(/[\-\d\.\,]+/).join('')] = sourceProps[i];
@@ -52,7 +52,6 @@
 			targetObj[sourceProps[i].split(/[\-\d\.\,]+/).join('')] = sourceProps[i]; 
 		} 
 		for(i=0;targetProps.length && targetProps[i];i++){
-			// console.log(targetProps[i], i);
 			targetObj[targetProps[i].split(/[\-\d\.\,]+/).join('')] = targetProps[i];	
 		} 
 		i = 0;
@@ -63,7 +62,7 @@
 			}
 			temparr = targetObj[prop].split(/[\-\d\.]+/);
 			for(j=0;j<targetvals.length;j++){
-				interpolated = interpolate(sourcevals[j]||0,targetvals[j], pos)
+				interpolated = interpolate(+sourcevals[j]||0,+targetvals[j], pos)
 				temparr.splice(1+2*j,0,interpolated);
 			}
 			res[i] = temparr.join('');
@@ -84,8 +83,6 @@
 		parseEl.innerHTML = '<div style="'+style+'"></div>';
 		//here is where it fails
 		css = parseEl.childNodes[0].style;
-		//in transformations currentStyle gives a matrix, contrary to currentstyle
-		// css = parseEl.currentStyle ? parseEl.currentStyle : getComputedStyle(parseEl, null);
 		while(i--) if(v = css[props[i]]) rules[props[i]] = parse(v);
 		return rules;
 	}  
@@ -96,15 +93,15 @@
 		var target = normalize(style), comp = el.currentStyle ? el.currentStyle : getComputedStyle(el, null),
 		  prop, current = {}, start = +new Date, dur = opts.duration||200, finish = start+dur, interval,
 		  easing = opts.easing || function(pos){ return (-Math.cos(pos*Math.PI)/2) + 0.5; };
-		for(prop in target){console.log(comp[prop], prop, el.style[prop]); current[prop] = parse(comp[prop]);}
+		//in transformations currentStyle gives a matrix, contrary to style
+		for(prop in target){current[prop] = !~prop.indexOf('Transform') ? parse(comp[prop]) : parse(el.style[prop]);}
 		interval = requestAnimationFrame(function animation(){
-		var time = new Date().getTime(), pos = time>finish ? 1 : (time-start)/dur;
-		for(prop in target){
-			console.log(prop,current[prop])
-			el.style[prop] = target[prop].f(current[prop].v,target[prop].v,easing(pos)) + target[prop].u;
-		}
-		if(time>finish) { cancelAnimationFrame(interval); opts.after && opts.after(); after && setTimeout(after,1); }
-		else requestAnimationFrame(animation)
+			var time = new Date().getTime(), pos = time>finish ? 1 : (time-start)/dur;
+			for(prop in target){
+				el.style[prop] = target[prop].f(current[prop].v,target[prop].v,easing(pos)) + target[prop].u;
+			}
+			if(time>finish) { cancelAnimationFrame(interval); opts.after && opts.after(); after && setTimeout(after,1); }
+			else requestAnimationFrame(animation)
 		},10);
 	}
 })('emile', this);
