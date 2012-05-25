@@ -1,4 +1,5 @@
 // emile.js (c) 2009 Thomas Fuchs
+// extended by David Avellaneda (@davsket)
 // Licensed under the terms of the MIT license.
 
 (function(emile, container){

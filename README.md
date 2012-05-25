@@ -1,4 +1,4 @@
-Émile
+Émile (davsket version)
 =====
 
 #### Stand-alone CSS animation JavaScript mini-framework ####
@@ -7,10 +7,12 @@
 * Full set of CSS properties for animation (length-based and colors)
 * Easing and callbacks
 * Less than 50 lines of code
+* Now supports CSS transformation properties
+* Now uses `requestAnimationFrame`
 
-Get updates on Twitter: <http://twitter.com/emilejs>
+Get updates on Twitter: <http://twitter.com/emilejs> & <http://twitter.com/davsket>
 
-Also see the video of my presentation at Fronteers 2009:
+Also see the video of Thomas Fuchs presentation at Fronteers 2009:
 <http://fronteers.nl/congres/2009/sessions/roll-your-own-effects-framework>
 
 ### Targeted platforms ###
@@ -21,13 +23,13 @@ Also see the video of my presentation at Fronteers 2009:
 * Mozilla Firefox 1.5 and higher
 * Apple Safari 2.0.4 and higher
 * Opera 9.25 and higher
-* Chrome 1.0 and higher
+* Chrome 1.0 and higher (only tested in Chrome 10)
 
 ### Documentation ###
 
 One method:
 
-    emile(element, style, options, after)
+    emile(element, style[, options [, after] ])
 
 **Parameters**
 
